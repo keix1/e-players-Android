@@ -4,6 +4,12 @@ import android.net.Uri;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
+
+import otoshimono.com.lost.mamorio.sdk.Mamorio;
+import otoshimono.com.lost.mamorio.sdk.MamorioSDK;
+import otoshimono.com.lost.mamorio.sdk.User;
+import otoshimono.com.lost.mamorio.sdk.Error;
 
 
 public class MainActivity extends AppCompatActivity implements MimamorioFragment.OnFragmentInteractionListener {
@@ -19,6 +25,12 @@ public class MainActivity extends AppCompatActivity implements MimamorioFragment
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.add(R.id.fragmentMimarioContainer, mimamorioFragment);
         transaction.commit();
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        Log.i(TAG, "onStart");
     }
 
     @Override
