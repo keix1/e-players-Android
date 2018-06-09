@@ -1,6 +1,8 @@
 package com.mimamori.mimaco;
 
+import android.Manifest;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -9,6 +11,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.util.List;
+
+import otoshimono.com.lost.mamorio.sdk.Mamorio;
 import otoshimono.com.lost.mamorio.sdk.MamorioSDK;
 import otoshimono.com.lost.mamorio.sdk.User;
 import otoshimono.com.lost.mamorio.sdk.Error;
@@ -29,8 +34,13 @@ public class MimamorioFragment extends Fragment {
 
     private KEYS keys = new KEYS();
 
+    private String APP_TOKEN = "APP_TOKEN";
+    private PointManager pointManager = new PointManager();
+    private String MY_USERNAME = "1";
+
     public MimamorioFragment() {
         // Required empty public constructor
+
     }
 
 
@@ -39,20 +49,21 @@ public class MimamorioFragment extends Fragment {
         super.onStart();
         Log.i("LifeCycle", "onStart");
 
-        MamorioSDK.setUp(getActivity().getBaseContext(), "APP_TOKEN");
-        User.signIn(keys.getUser(), keys.getPassword(), new User.UserCallback() {
-            @Override
-            public void onSuccess(User user) {
-                //アカウント登録成功時の処理
-                Log.d(TAG,"ユーザーのサインインに成功しました");
-            }
+        // ACCESS_FINE_LOCATIONの許可(Android 6.0以上向け）
+        if (getActivity().checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 0);
+        } else {
+            MamorioSDK.setUp(getActivity().getBaseContext(), APP_TOKEN); // 探索専用
+            step1();
+        }
 
-            @Override
-            public void onError(Error error) {
-                //アカウント登録失敗時の処理
-                Log.d(TAG,"ユーザー登録に失敗しました。エラーメッセージ：" + error.getMessage());
-            }
-        });
+        try {
+//            Log.d("resultJSON:", pointManager.getAllUser().getJSONObject(0).getString("email"));
+//            Log.d(TAG, pointManager.addPoint(4, 1).getString("point"));
+//            Log.d("getUser", pointManager.getUser(2).getString("username"));
+        } catch(Exception e) {
+            Log.e(TAG, e.getMessage());
+        }
     }
 
     /**
@@ -81,6 +92,109 @@ public class MimamorioFragment extends Fragment {
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
     }
+
+
+    void step1()
+    {
+        Log.d(TAG,"step1()");
+
+        User.signUpAsTemporalUser(new User.UserCallback() {
+            @Override
+            public void onSuccess(User user) {
+                //アカウント登録成功時の処理
+                Log.d(TAG,"捜索専用ユーザーの登録に成功しました。ペアリングは行わず、周囲を高精度で探索し続け「みんなでさがす」に貢献します。");
+                step2();
+            }
+
+            @Override
+            public void onError(Error error) {
+                //アカウント登録失敗時の処理
+                Log.d(TAG,"捜索専用ユーザーの登録に失敗しました。エラーメッセージ：" + error.getMessage());
+            }
+        });
+    }
+
+    void step2()
+    {
+        Log.d(TAG,"step2()");
+
+        MamorioSDK.rangingStart(
+                new MamorioSDK.RangingInitializeCallback() {
+                    @Override
+                    public void onSuccess() {
+                        Log.d(TAG,"レンジングの開始に成功しました。");
+                    }
+                    @Override
+                    public void onError(Error error) {
+                        Log.d(TAG,"Sレンジングの開始に失敗しました。エラーメッセージ："+error.getMessage());
+                    }
+                },
+                //MAMORIO発見時のコールバック（null可）
+                new MamorioSDK.RangingCallbackEnter() {
+                    @Override
+                    public void onEnter(List<Mamorio> list) {
+                        //list:発見したMAMORIOの一覧
+                        //nullの場合コールバックしない
+                        Log.d(TAG,"RangingCallbackEnter()");
+
+                        for(int i = 0 ; i < list.size() ; i++) {
+                            Mamorio dev = list.get(i);
+
+                            String name = dev.getName();
+                            if(name != null){
+                                Log.d(TAG,"name=" + name);
+                            }
+
+                            int major = dev.getMajor();
+                            int minor = dev.getMinor();
+                            Log.d(TAG,major + "," + minor);
+
+                            if(dev.isNotYours() == true) {
+                                Log.d(TAG,"他人のMAMORIO");
+                                pointManager.addPoint(MY_USERNAME, 1);
+                            } else {
+                                Log.d(TAG,"自分のMAMORIO");
+                            }
+                        }
+                    }
+                },
+                //MAMORIO紛失時のコールバック(null可)
+                new MamorioSDK.RangingCallbackExit() {
+                    @Override
+                    public void onExit(List<Mamorio> list) {
+                        //list:紛失した自分のMAMORIO一覧
+                        Log.d(TAG,"RangingCallbackExit()");
+
+                        for(int i = 0 ; i < list.size() ; i++) {
+                            Mamorio dev = list.get(i);
+
+                            String name = dev.getName();
+                            if(name != null){
+                                Log.d(TAG,"name=" + name);
+                            }
+
+                            int major = dev.getMajor();
+                            int minor = dev.getMinor();
+                            Log.d(TAG,major + "," + minor);
+
+                            if(dev.isNotYours() == true) {
+                                Log.d(TAG,"他人のMAMORIO");
+                            } else {
+                                Log.d(TAG,"自分のMAMORIO");
+                            }
+                        }
+                    }
+                }
+        );
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        Log.d(TAG,"onStop()");
+        MamorioSDK.rangingStop();
+    }
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
