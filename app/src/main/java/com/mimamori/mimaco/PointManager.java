@@ -14,6 +14,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.HashMap;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -25,7 +26,7 @@ public class PointManager {
     PointManager() {
     }
 
-    String baseUrl = "http://172.22.1.80";
+    String baseUrl = "http://172.22.1.64";
     String sl = "/";
 
     public JSONArray getAllUser() {
@@ -71,6 +72,23 @@ public class PointManager {
 
         try {
             result = httpClient.execute(Util.getMethodName(), queryUrl, String.valueOf(point)).get();
+            resultJSONObject = new JSONObject(result);
+        } catch (Exception e) {
+            Log.e(TAG, e.toString());
+        }
+
+        return resultJSONObject;
+    }
+
+    public JSONObject findWatchedUser(String username, int major, int minor, double latitude, double longitude) {
+        String appendUrl = "user";
+        String queryUrl = baseUrl + sl + appendUrl + sl + username;
+        String result = "";
+        JSONObject resultJSONObject = new JSONObject();
+        HttpClient httpClient = new HttpClient();
+
+        try {
+            result = httpClient.execute(Util.getMethodName(), queryUrl, username, String.valueOf(major), String.valueOf(minor), String.valueOf(latitude), String.valueOf(longitude)).get();
             resultJSONObject = new JSONObject(result);
         } catch (Exception e) {
             Log.e(TAG, e.toString());
