@@ -44,6 +44,14 @@ public class HttpClient extends AsyncTask<String, Void, String> {
                     String point = params[2];
                     result = addPoint(url, point);
                     break;
+                case "findWatchedUser":
+                    String username = params[2];
+                    String major = params[3];
+                    String minor = params[4];
+                    String latitude = params[5];
+                    String longitude = params[6];
+                    result = findWatchedUser(url, username, major, minor, latitude, longitude);
+                    break;
             }
         } catch (Exception e) {
                 Log.e(TAG, e.toString());
@@ -88,7 +96,7 @@ public class HttpClient extends AsyncTask<String, Void, String> {
         RequestBody requestBody = RequestBody.create (MIMEType,"{\"point_increment\": " + point + "}");
         Request request = new Request.Builder()
                 .url(url)
-//                .patch(requestBody)
+                .patch(requestBody)
                 .build();
         Response response = client.newCall(request).execute();
         String result = response.body().string();
@@ -96,4 +104,25 @@ public class HttpClient extends AsyncTask<String, Void, String> {
         return result;
     }
 
+    private String findWatchedUser(String url, String username, String major, String minor, String latitude, String longitude) throws IOException {
+        OkHttpClient client = new OkHttpClient();
+        MediaType MIMEType= MediaType.parse("application/json; charset=utf-8");
+
+        String json = "{\"username\": \"" + username + "\","
+                + "\"major\": " + major + ","
+                + "\"minor\": " + minor + ","
+                + "\"latitude\": " + latitude + ","
+                + "\"longitude\": " + longitude
+                + "}";
+        RequestBody requestBody = RequestBody.create (MIMEType, json);
+
+        Request request = new Request.Builder()
+                .url(url)
+                .patch(requestBody)
+                .build();
+        Response response = client.newCall(request).execute();
+        String result = response.body().string();
+        Log.d(TAG, result);
+        return result;
+    }
 }
