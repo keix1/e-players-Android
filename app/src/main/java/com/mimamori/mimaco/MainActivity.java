@@ -10,7 +10,12 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
+
+import com.beardedhen.androidbootstrap.BootstrapButton;
+import com.beardedhen.androidbootstrap.TypefaceProvider;
 
 import otoshimono.com.lost.mamorio.sdk.Mamorio;
 import otoshimono.com.lost.mamorio.sdk.MamorioSDK;
@@ -23,15 +28,46 @@ public class MainActivity extends AppCompatActivity implements MimamorioFragment
     private static String TAG = MainActivity.class.getCanonicalName();
     private final int REQUEST_PERMISSION = 10;
 
+    private BootstrapButton mimamoriButton;
+    private BootstrapButton mimamoRareButton;
+    private boolean locationPermission = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        TypefaceProvider.registerDefaultIconSets();
 
-//        MimamoRareFragment mimamoRareFragment = new MimamoRareFragment();
-//        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-//        transaction.add(R.id.fragmentMimarioContainer, mimamoRareFragment);
-//        transaction.commit();
+        mimamoriButton = findViewById(R.id.mimamori_button);
+        mimamoriButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.d("button", "mori");
+                if(locationPermission) {
+                    MimamorioFragment mimamorioFragment = new MimamorioFragment();
+                    FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+                    transaction.addToBackStack(null);
+                    transaction.add(R.id.fragmentMimamorioContainer, mimamorioFragment);
+                    transaction.commit();
+                }
+            }
+        });
+
+        mimamoRareButton = findViewById(R.id.mimamo_rare_button);
+        mimamoRareButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.d("button", "rare");
+                if(locationPermission) {
+                    MimamoRareFragment mimamoRareFragment = new MimamoRareFragment();
+                    FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+                    transaction.addToBackStack(null);
+                    transaction.add(R.id.fragmentMimamoRareContainer, mimamoRareFragment);
+                    transaction.commit();
+                }
+            }
+        });
+
 
         if(Build.VERSION.SDK_INT >= 23){
             checkPermission();
@@ -43,12 +79,7 @@ public class MainActivity extends AppCompatActivity implements MimamorioFragment
     }
 
     private void locationActivity() {
-
-        MimamorioFragment mimamorioFragment = new MimamorioFragment();
-        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        transaction.add(R.id.fragmentMimarioContainer, mimamorioFragment);
-        transaction.commit();
-
+        locationPermission = true;
     }
 
     @Override
