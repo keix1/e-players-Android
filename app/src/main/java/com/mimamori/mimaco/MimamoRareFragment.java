@@ -13,18 +13,19 @@ import android.view.ViewGroup;
 
 import java.util.List;
 
+import otoshimono.com.lost.mamorio.sdk.Error;
 import otoshimono.com.lost.mamorio.sdk.Mamorio;
 import otoshimono.com.lost.mamorio.sdk.MamorioSDK;
+import otoshimono.com.lost.mamorio.sdk.PeripheralHistory;
 import otoshimono.com.lost.mamorio.sdk.User;
-import otoshimono.com.lost.mamorio.sdk.Error;
 
 
-public class MimamorioFragment extends Fragment {
+public class MimamoRareFragment extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
-    private static final String TAG = MimamorioFragment.class.getName();
+    private static final String TAG = MimamoRareFragment.class.getName();
 
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -38,7 +39,7 @@ public class MimamorioFragment extends Fragment {
     private PointManager pointManager = new PointManager();
     private String MY_USERNAME = "1";
 
-    public MimamorioFragment() {
+    public MimamoRareFragment() {
         // Required empty public constructor
 
     }
@@ -61,7 +62,7 @@ public class MimamorioFragment extends Fragment {
 //            Log.d("resultJSON:", pointManager.getAllUser().getJSONObject(0).getString("email"));
 //            Log.d(TAG, pointManager.addPoint(String.valueOf(1), 1).getString("username"));
 //            Log.d("getUser", pointManager.getUser(2).getString("username"));
-            Log.d(TAG, pointManager.findWatchedUser("1", 3333, 4444 ).getString("username"));
+//            Log.d(TAG, pointManager.findWatchedUser("1", 3333, 4444 ).getString("username"));
         } catch(Exception e) {
             Log.e(TAG, e.getMessage());
         }
@@ -76,8 +77,8 @@ public class MimamorioFragment extends Fragment {
      * @return A new instance of fragment MimamorioFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static MimamorioFragment newInstance(String param1, String param2) {
-        MimamorioFragment fragment = new MimamorioFragment();
+    public static MimamoRareFragment newInstance(String param1, String param2) {
+        MimamoRareFragment fragment = new MimamoRareFragment();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
         args.putString(ARG_PARAM2, param2);
@@ -99,26 +100,45 @@ public class MimamorioFragment extends Fragment {
     {
         Log.d(TAG,"step1()");
 
-        User.signUpAsTemporalUser(new User.UserCallback() {
+        User.signIn(keys.getUser(), keys.getPassword(), new User.UserCallback() {
             @Override
             public void onSuccess(User user) {
                 //アカウント登録成功時の処理
-                Log.d(TAG,"捜索専用ユーザーの登録に成功しました。ペアリングは行わず、周囲を高精度で探索し続け「みんなでさがす」に貢献します。");
+                Log.d(TAG,"ユーザーのサインインに成功しました");
                 step2();
             }
 
             @Override
             public void onError(Error error) {
                 //アカウント登録失敗時の処理
-                Log.d(TAG,"捜索専用ユーザーの登録に失敗しました。エラーメッセージ：" + error.getMessage());
+                Log.d(TAG,"ユーザー登録に失敗しました。エラーメッセージ：" + error.getMessage());
             }
         });
+
     }
 
     void step2()
     {
         Log.d(TAG,"step2()");
 
+        MamorioSDK.getCurrentUser().refreshMamorios(
+                new User.Callback() {
+                    @Override
+                    public void onSuccess() {
+                        Log.d("REFRESH","リフレッシュに成功しました");
+                        for(Mamorio mamorio : MamorioSDK.getCurrentUser().getMamorios()) {
+                            Log.d("REFRESH", mamorio.getName());
+
+                        }
+
+                    }
+
+                    @Override
+                    public void onError(Error error) {
+                        Log.d("REFRESH","mamorioの情報の更新に失敗しました。エラーメッセージ：" + error.getMessage());
+                    }
+                }
+        );
         MamorioSDK.rangingStart(
                 new MamorioSDK.RangingInitializeCallback() {
                     @Override
@@ -152,9 +172,13 @@ public class MimamorioFragment extends Fragment {
 
                             if(dev.isNotYours() == true) {
                                 Log.d(TAG,"他人のMAMORIO");
-                                pointManager.addPoint(MY_USERNAME, 1);
                             } else {
                                 Log.d(TAG,"自分のMAMORIO");
+                                for(PeripheralHistory peripheralHistory : dev.getPeripheralHistories()) {
+                                    Log.d("LocationMamorio", peripheralHistory.getDetectedAt().toString());
+                                    Log.d("LocationMamorio", peripheralHistory.getLatitude() + "");
+                                    Log.d("LocationMamorio", peripheralHistory.getLongitude() + "");
+                                }
                             }
                         }
                     }
