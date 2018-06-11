@@ -30,4 +30,5 @@ dependencies {
     implementation 'com.squareup.okhttp3:okhttp:3.10.0'
     implementation 'com.google.android.gms:play-services-location:11.6.2'
     implementation 'com.google.android.gms:play-services-maps:11.6.2'
+    implementation 'com.beardedhen:androidbootstrap:2.3.2'
 }
