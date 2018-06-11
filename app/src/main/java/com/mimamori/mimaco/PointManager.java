@@ -26,7 +26,7 @@ public class PointManager {
     PointManager() {
     }
 
-    String baseUrl = "http://172.22.1.64";
+    String baseUrl = "http://172.22.1.99";
     String sl = "/";
 
     public JSONArray getAllUser() {
@@ -45,6 +45,17 @@ public class PointManager {
             Log.e(TAG, e.toString());
         }
         return resultJSONArray;
+    }
+
+    public int getPoint(String username) {
+        JSONObject jsonObject = getUser(username);
+        int point = -1;
+        try {
+            point = (int)jsonObject.get("point");
+        } catch(Exception e) {
+            Log.e(Util.getMethodName(), e.getMessage());
+        }
+        return point;
     }
 
     public JSONObject getUser(String username) {

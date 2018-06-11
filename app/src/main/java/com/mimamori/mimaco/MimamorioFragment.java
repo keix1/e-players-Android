@@ -23,6 +23,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.api.ApiException;
@@ -64,6 +65,8 @@ public class MimamorioFragment extends Fragment {
     private String mParam1;
     private String mParam2;
 
+    private View rootView;
+
     private OnFragmentInteractionListener mListener;
 
 
@@ -88,6 +91,9 @@ public class MimamorioFragment extends Fragment {
     private PointManager pointManager = new PointManager();
     private String MY_USERNAME = "1";
 
+    private TextView pointText;
+
+
     public MimamorioFragment() {
         // Required empty public constructor
 
@@ -98,6 +104,9 @@ public class MimamorioFragment extends Fragment {
     public void onStart(){
         super.onStart();
         Log.i("LifeCycle", "onStart");
+
+        int point = pointManager.getPoint(MY_USERNAME);
+        pointText.setText("POINT: " + point);
 
         // ACCESS_FINE_LOCATIONの許可(Android 6.0以上向け）
         if (getActivity().checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -148,7 +157,6 @@ public class MimamorioFragment extends Fragment {
         fusedLocationClient =
                 LocationServices.getFusedLocationProviderClient(getActivity());
         settingsClient = LocationServices.getSettingsClient(getActivity());
-
         priority = 0;
 
         createLocationCallback();
@@ -268,7 +276,10 @@ public class MimamorioFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_mimamorio, container, false);
+        rootView = inflater.inflate(R.layout.fragment_mimamorio, container, false);
+        pointText = rootView.findViewById(R.id.pointText);
+
+        return rootView;
     }
 
     // TODO: Rename method, update argument and hook method into UI event
