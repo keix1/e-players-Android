@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#fde"
-    tools:context=".MimamorioFragment">
+    android:background="#F0F8FF"
+    tools:context=".MimamoRareFragment">
 
     <!-- TODO: Update blank fragment layout -->
     <TextView
