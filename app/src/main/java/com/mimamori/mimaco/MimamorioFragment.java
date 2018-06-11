@@ -22,6 +22,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.Toast;
 
 import com.google.android.gms.common.api.ApiException;
@@ -87,7 +88,6 @@ public class MimamorioFragment extends Fragment {
     private PointManager pointManager = new PointManager();
     private String MY_USERNAME = "1";
 
-
     public MimamorioFragment() {
         // Required empty public constructor
 
@@ -142,6 +142,8 @@ public class MimamorioFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+
+
 
         fusedLocationClient =
                 LocationServices.getFusedLocationProviderClient(getActivity());
