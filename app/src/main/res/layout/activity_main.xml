@@ -39,30 +39,35 @@
             />
 
 
-        <com.beardedhen.androidbootstrap.BootstrapButtonGroup
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="50dp"
-            android:orientation="vertical"
-            app:bootstrapBrand="success"
-            app:bootstrapSize="lg"
-            app:roundedCorners="true"
-            >
-
             <com.beardedhen.androidbootstrap.BootstrapButton
                 android:id="@+id/mimamori_button"
-                android:layout_width="wrap_content"
+                android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:text="見守る側\n地域の人"
+                android:textStyle="bold"
+                android:layout_below="@+id/billingCost"
+                android:layout_alignParentStart="true"
+                android:layout_marginTop="20dp"
+                app:bootstrapText="{fa-users} 見守る側\n地域の人"
+                app:bootstrapSize="lg"
+                app:buttonMode="regular"
+                app:bootstrapBrand="success"
+                app:roundedCorners="true"
                 />
+
             <com.beardedhen.androidbootstrap.BootstrapButton
                 android:id="@+id/mimamo_rare_button"
-                android:layout_width="wrap_content"
+                android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:text="見守られる側\n親御さん"
+                android:textStyle="bold"
+                android:layout_below="@+id/billingCost"
+                android:layout_alignParentStart="true"
+                android:layout_marginTop="20dp"
+                app:bootstrapText="{fa-child} 見守られる側\n親御さん"
+                app:bootstrapSize="lg"
+                app:buttonMode="regular"
+                app:bootstrapBrand="success"
+                app:roundedCorners="true"
                 />
-        </com.beardedhen.androidbootstrap.BootstrapButtonGroup>
-
 
     </LinearLayout>
     <LinearLayout
