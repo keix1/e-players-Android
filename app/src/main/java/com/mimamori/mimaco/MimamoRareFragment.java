@@ -11,6 +11,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapView;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
+
 import java.util.List;
 
 import otoshimono.com.lost.mamorio.sdk.Error;
@@ -20,7 +27,7 @@ import otoshimono.com.lost.mamorio.sdk.PeripheralHistory;
 import otoshimono.com.lost.mamorio.sdk.User;
 
 
-public class MimamoRareFragment extends Fragment {
+public class MimamoRareFragment extends Fragment implements OnMapReadyCallback {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -38,6 +45,10 @@ public class MimamoRareFragment extends Fragment {
     private String APP_TOKEN = "APP_TOKEN";
     private PointManager pointManager = new PointManager();
     private String MY_USERNAME = "1";
+
+    private View rootView;
+    private GoogleMap mMap;
+    private MapView mapView;
 
     public MimamoRareFragment() {
         // Required empty public constructor
@@ -224,8 +235,16 @@ public class MimamoRareFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_mimamo_rare, container, false);
+        rootView = inflater.inflate(R.layout.fragment_mimamo_rare, container, false);
+
+        mapView = (MapView) rootView.findViewById(R.id.map_mimamo_rare);
+        mapView.onCreate(savedInstanceState);
+        mapView.onResume();
+        mapView.getMapAsync(this);
+        return rootView;
+
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -265,5 +284,15 @@ public class MimamoRareFragment extends Fragment {
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
+    }
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        mMap = googleMap;
+
+        // Add a marker in Sydney and move the camera
+        LatLng sydney = new LatLng(-34, 151);
+        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
     }
 }

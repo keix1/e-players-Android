@@ -11,19 +11,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.Toast;
 
 import com.beardedhen.androidbootstrap.BootstrapButton;
 import com.beardedhen.androidbootstrap.TypefaceProvider;
 
-import otoshimono.com.lost.mamorio.sdk.Mamorio;
-import otoshimono.com.lost.mamorio.sdk.MamorioSDK;
-import otoshimono.com.lost.mamorio.sdk.User;
-import otoshimono.com.lost.mamorio.sdk.Error;
 
-
-public class MainActivity extends AppCompatActivity implements MimamorioFragment.OnFragmentInteractionListener, MimamoRareFragment.OnFragmentInteractionListener{
+public class MainActivity extends AppCompatActivity implements MimamorioFragment.OnFragmentInteractionListener, MimamoRareFragment.OnFragmentInteractionListener {
 
     private static String TAG = MainActivity.class.getCanonicalName();
     private final int REQUEST_PERMISSION = 10;
@@ -31,6 +25,8 @@ public class MainActivity extends AppCompatActivity implements MimamorioFragment
     private BootstrapButton mimamoriButton;
     private BootstrapButton mimamoRareButton;
     private boolean locationPermission = false;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -148,6 +144,5 @@ public class MainActivity extends AppCompatActivity implements MimamorioFragment
             }
         }
     }
-
 
 }
