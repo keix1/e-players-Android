@@ -7,13 +7,34 @@
     android:background="#ffffe0"
     tools:context=".MimamorioFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
-        android:id="@+id/pointText"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:layout_width="match_parent"
+
+    <LinearLayout
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="POINT:" />
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/pointText"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="ポイント:" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/gpsButton"
+            android:layout_marginLeft="@dimen/activity_horizontal_margin"
+            android:text="現在地"/>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/heatMapButton"
+            android:layout_marginLeft="@dimen/activity_horizontal_margin"
+            android:text="ヒートマップ"/>
+
+    </LinearLayout>
 
     <com.google.android.gms.maps.MapView
         android:id="@+id/map_mimamorio"
