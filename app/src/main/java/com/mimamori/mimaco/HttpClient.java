@@ -52,6 +52,10 @@ public class HttpClient extends AsyncTask<String, Void, String> {
                     String longitude = params[6];
                     result = findWatchedUser(url, username, major, minor, latitude, longitude);
                     break;
+                case "getHeatMap":
+                    result = getHeatMap(url);
+                    break;
+
             }
         } catch (Exception e) {
                 Log.e(TAG, e.toString());
@@ -110,10 +114,11 @@ public class HttpClient extends AsyncTask<String, Void, String> {
         String json = "{\"username\": \"" + username + "\","
                 + "\"major\": " + major + ","
                 + "\"minor\": " + minor + ","
-                + "\"latitude\": " + latitude + ","
-                + "\"longitude\": " + longitude
-                + "}";
+                + "\"latitude\": \"" + latitude + "\","
+                + "\"longitude\": \"" + longitude
+                + "\"}";
         RequestBody requestBody = RequestBody.create (MIMEType, json);
+        Log.d("jsoncheck", json);
 
         Request request = new Request.Builder()
                 .url(url)
@@ -121,7 +126,20 @@ public class HttpClient extends AsyncTask<String, Void, String> {
                 .build();
         Response response = client.newCall(request).execute();
         String result = response.body().string();
+        Log.d("jsoncheck", result);
+        return result;
+    }
+
+    private String getHeatMap(String url) throws IOException {
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder()
+                .url(url)
+                .get()
+                .build();
+        Response response = client.newCall(request).execute();
+        String result = response.body().string();
         Log.d(TAG, result);
         return result;
     }
+
 }
