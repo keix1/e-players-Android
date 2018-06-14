@@ -166,18 +166,20 @@ public class MimamorioFragment extends Fragment implements OnMapReadyCallback {
         new Thread(new Runnable() {
             @Override
             public void run() {
+                while(true) {
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            int point = pointManager.getPoint(MY_USERNAME);
+                            pointText.setText("ポイントは " + point);
+                        }
+                    });
 
-                getActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        int point = pointManager.getPoint(MY_USERNAME);
-                        pointText.setText("ポイントは " + point);
+                    try {
+                        Thread.sleep(5000);
+                    } catch (Exception e) {
+                        Log.e(TAG, e.getMessage());
                     }
-                });
-
-                try {
-                    Thread.sleep(1000);
-                } catch (Exception e) {
                 }
 
 
@@ -194,7 +196,7 @@ public class MimamorioFragment extends Fragment implements OnMapReadyCallback {
         buildLocationSettingsRequest();
     }
 
-    private void heatMap() {
+    private void heatMapStub() {
         if(location != null) {
             if(mMarkerList != null) {
                 for(Marker marker : mMarkerList) {
@@ -208,6 +210,35 @@ public class MimamorioFragment extends Fragment implements OnMapReadyCallback {
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(focus, 16));
 
             List<List<Double>> result = locationManager.getHeatMapTest(latitudeSeed, longitudeSeed);
+            for(List<Double> point : result) {
+                MarkerOptions options = new MarkerOptions();
+                options.position(new LatLng(point.get(0), point.get(1)));
+                options.title("子供いる");
+                options.snippet("ポイント率高");
+                Marker marker = mMap.addMarker(options);
+                marker.showInfoWindow();
+                mMarkerList.add(marker);
+            }
+        }
+    }
+
+    private void heatMap() {
+        if(location != null) {
+            if(mMarkerList != null) {
+                for(Marker marker : mMarkerList) {
+                    marker.remove();
+                }
+            }
+//            double latitudeSeed = 35.6;
+//            double longitudeSeed = 139.7;
+            double latitudeSeed = location.getLatitude();
+            double longitudeSeed = location.getLongitude();
+
+            LatLng focus = new LatLng(latitudeSeed, longitudeSeed);
+            mMap.addMarker(new MarkerOptions().position(focus).title("現在位置").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(focus, 16));
+
+            List<List<Double>> result = locationManager.getHeatMap(MY_USERNAME, latitudeSeed, longitudeSeed);
             for(List<Double> point : result) {
                 MarkerOptions options = new MarkerOptions();
                 options.position(new LatLng(point.get(0), point.get(1)));
