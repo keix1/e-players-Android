@@ -32,7 +32,7 @@ public class LocationManager {
     }
 
     public List<List<Double>> getHeatMap(String username, double latitude, double longitude) {
-        String appendUrl = "heatmap";
+        String appendUrl = "user_location";
         String queryUrl = baseUrl + sl + appendUrl;
         String result = "";
         JSONObject resultJSONObject = new JSONObject();
@@ -45,8 +45,10 @@ public class LocationManager {
             resultJSONArray = new JSONArray(result);
             for(int i=0; i<resultJSONArray.length(); i++) {
                 resultJSONObject = resultJSONArray.getJSONObject(i);
-                double resultLatitude = (double)resultJSONObject.get("latitude");
-                double resultLongitude = (double)resultJSONObject.get("longitude");
+
+                double resultLatitude = Double.parseDouble((String)resultJSONObject.get("latitude"));
+                double resultLongitude = Double.parseDouble((String)resultJSONObject.get("longitude"));
+                Log.d("getHeatMap", resultLatitude + ", " + resultLongitude);
                 List<Double> list = new ArrayList<>();
                 list.add(resultLatitude);
                 list.add(resultLongitude);
