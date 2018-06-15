@@ -13,7 +13,7 @@ import static android.support.constraint.Constraints.TAG;
 
 public class LocationManager {
     String TAG = LocationManager.class.getName();
-    String baseUrl = "http://172.22.1.99";
+    String baseUrl = "http://mimaco.herokuapp.com";
     String sl = "/";
 
 

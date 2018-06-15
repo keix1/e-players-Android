@@ -1,16 +1,22 @@
 package com.mimamori.mimaco;
 
 import android.Manifest;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Looper;
+import android.os.Vibrator;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -53,6 +59,8 @@ import otoshimono.com.lost.mamorio.sdk.User;
 import otoshimono.com.lost.mamorio.sdk.Error;
 
 import static android.content.Context.LOCATION_SERVICE;
+import static android.content.Context.NOTIFICATION_SERVICE;
+import static android.content.Context.VIBRATOR_SERVICE;
 
 
 public class MimamorioFragment extends Fragment implements OnMapReadyCallback {
@@ -89,7 +97,7 @@ public class MimamorioFragment extends Fragment implements OnMapReadyCallback {
 
     private String APP_TOKEN = "APP_TOKEN";
     private PointManager pointManager;
-    private String MY_USERNAME = "me";
+    private String MY_USERNAME = "grandpa";
 
     //UI部品
     private TextView pointText;
@@ -101,6 +109,10 @@ public class MimamorioFragment extends Fragment implements OnMapReadyCallback {
     private MapView mapView;
     private LocationManager locationManager;
     private List<Marker> mMarkerList;
+
+    private Vibrator vib;
+    private long pattern[] = {1000, 200, 700, 200, 400, 200 };
+
 
     public MimamorioFragment() {
         // Required empty public constructor
@@ -133,6 +145,7 @@ public class MimamorioFragment extends Fragment implements OnMapReadyCallback {
         }
 
         startLocationUpdates();
+//        setInitialLocation();
     }
 
     /**
@@ -172,6 +185,7 @@ public class MimamorioFragment extends Fragment implements OnMapReadyCallback {
                         public void run() {
                             int point = pointManager.getPoint(MY_USERNAME);
                             pointText.setText("ポイントは " + point);
+
                         }
                     });
 
@@ -181,10 +195,46 @@ public class MimamorioFragment extends Fragment implements OnMapReadyCallback {
                         Log.e(TAG, e.getMessage());
                     }
                 }
-
-
             }
         }).start();
+
+
+        // 一定ごとにUI更新（ポイント）
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+
+                int count = 0;
+                while(true) {
+                    if(count < 5) {
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                double latitudeSeed = 0.0f;
+                                double longitudeSeed = 0.0f;
+
+                                if (location != null && mMap != null) {
+                                    latitudeSeed = location.getLatitude();
+                                    longitudeSeed = location.getLongitude();
+
+                                    LatLng focus = new LatLng(latitudeSeed, longitudeSeed);
+                                    mMap.addMarker(new MarkerOptions().position(focus).title("現在位置").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+                                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(focus, 16));
+                                }
+                            }
+                        });
+
+                        try {
+                            Thread.sleep(3000);
+                        } catch (Exception e) {
+                            Log.e(TAG, e.getMessage());
+                        }
+                        count += 1;
+                    }
+                }
+            }
+        }).start();
+
 
         fusedLocationClient =
                 LocationServices.getFusedLocationProviderClient(getActivity());
@@ -194,7 +244,47 @@ public class MimamorioFragment extends Fragment implements OnMapReadyCallback {
         createLocationCallback();
         createLocationRequest();
         buildLocationSettingsRequest();
+
     }
+
+    private void setInitialLocation() {
+        // 一定ごとにUI更新（ポイント）
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        double latitudeSeed = 35.6;
+                        double longitudeSeed = 139.7;
+                        try {
+                            latitudeSeed = location.getLatitude();
+                            longitudeSeed = location.getLongitude();
+
+                            LatLng focus = new LatLng(latitudeSeed, longitudeSeed);
+                            mMap.addMarker(new MarkerOptions().position(focus).title("現在位置").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+                            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(focus, 16));
+                        } catch (Exception e) {
+                            Log.e("setInitialLocation", e.getMessage());
+                        }
+                    }
+                });
+
+                try {
+                    Thread.sleep(2000);
+                } catch (Exception e) {
+                    Log.e(TAG, e.getMessage());
+                }
+
+                if(location==null) {
+                    setInitialLocation();
+                }
+            }
+        }).start();
+
+    }
+
+
 
     private void heatMapStub() {
         if(location != null) {
@@ -203,14 +293,15 @@ public class MimamorioFragment extends Fragment implements OnMapReadyCallback {
                     marker.remove();
                 }
             }
-            double latitudeSeed = 35.6;
-            double longitudeSeed = 139.7;
+            double latitudeSeed = 35.535347;
+            double longitudeSeed = 139.700937;
             LatLng focus = new LatLng(latitudeSeed, longitudeSeed);
             mMap.addMarker(new MarkerOptions().position(focus).title("現在位置").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(focus, 16));
 
             List<List<Double>> result = locationManager.getHeatMapTest(latitudeSeed, longitudeSeed);
             for(List<Double> point : result) {
+                Log.d("ChildrenPoint", point.get(0) + ", " + point.get(1));
                 MarkerOptions options = new MarkerOptions();
                 options.position(new LatLng(point.get(0), point.get(1)));
                 options.title("子供いる");
@@ -307,12 +398,19 @@ public class MimamorioFragment extends Fragment implements OnMapReadyCallback {
                             int minor = dev.getMinor();
                             Log.d(TAG,major + "," + minor);
 
+
                             if(dev.isNotYours() == true) {
                                 Log.d(TAG,"他人のMAMORIO");
                                 if(location!=null) {
                                     double latitude = location.getLatitude();
                                     double longitude = location.getLongitude();
                                     pointManager.findWatchedUser(MY_USERNAME, major, minor, latitude, longitude);
+//                                    Toast.makeText(getActivity(), "ポイントUP", Toast.LENGTH_LONG).show();
+//                                    // Vibratorクラスのインスタンス取得
+//                                    vib = (Vibrator)getActivity().getSystemService(VIBRATOR_SERVICE);
+//                                    vib.vibrate(100);
+
+
                                 }
 
                             } else {
@@ -373,9 +471,11 @@ public class MimamorioFragment extends Fragment implements OnMapReadyCallback {
                 if(location != null) {
                     LatLng focus = new LatLng(-34, 151);
                     focus = new LatLng(location.getLatitude(), location.getLongitude());
-                    mMap.addMarker(new MarkerOptions().position(focus).title("Marker in Sydney"));
+                    mMap.addMarker(new MarkerOptions().position(focus).title("現在位置"));
 //                    mMap.moveCamera(CameraUpdateFactory.newLatLng(focus));
                     mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(focus, 16));
+
+//                    statusBarNitify();
 
                 }
 
@@ -386,7 +486,7 @@ public class MimamorioFragment extends Fragment implements OnMapReadyCallback {
         heatMapButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                heatMap();
+                heatMapStub();
             }
         });
 
@@ -402,6 +502,26 @@ public class MimamorioFragment extends Fragment implements OnMapReadyCallback {
         if (mListener != null) {
             mListener.onFragmentInteraction(uri);
         }
+    }
+
+
+    private void statusBarNitify() {
+
+        NotificationCompat.Builder mBuilder =
+                (NotificationCompat.Builder) new NotificationCompat.Builder(getActivity())
+                        .setSmallIcon(R.mipmap.ic_launcher)
+                        .setContentTitle("My Notification")
+                        .setContentText("Hello World!")
+                        .setTicker("notification is displayed !!");
+
+        int mNotificationId = 001;
+
+        // Gets an instance of the NotificationManager service
+        NotificationManager mNotifyMgr =
+                (NotificationManager) getActivity().getSystemService(NOTIFICATION_SERVICE);
+
+        // Builds the notification and issues it.
+        mNotifyMgr.notify(mNotificationId, mBuilder.build());
     }
 
     @Override
@@ -632,4 +752,7 @@ public class MimamorioFragment extends Fragment implements OnMapReadyCallback {
 //        Marker marker = mMap.addMarker(options);
 //        marker.showInfoWindow();
     }
+
+
+
 }
