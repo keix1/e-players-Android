@@ -22,12 +22,11 @@ import okhttp3.Response;
 
 public class PointManager {
     String TAG = PointManager.class.getName();
+    String baseUrl = "http://mimaco.herokuapp.com";
+    String sl = "/";
 
     PointManager() {
     }
-
-    String baseUrl = "http://172.22.1.99";
-    String sl = "/";
 
     public JSONArray getAllUser() {
         String appendUrl = "user";
@@ -40,7 +39,6 @@ public class PointManager {
              result = httpClient.execute(Util.getMethodName(), queryUrl).get();
              resultJSONArray = new JSONArray(result);
              Log.d("JSONPARSE", resultJSONArray.getJSONObject(0).getString("username"));
-
         } catch (Exception e) {
             Log.e(TAG, e.toString());
         }
@@ -100,7 +98,8 @@ public class PointManager {
 
         try {
             result = httpClient.execute(Util.getMethodName(), queryUrl, username, String.valueOf(major), String.valueOf(minor), String.valueOf(latitude), String.valueOf(longitude)).get();
-            resultJSONObject = new JSONObject(result);
+//            resultJSONObject = new JSONObject(result);
+            Log.d(TAG, result);
         } catch (Exception e) {
             Log.e(TAG, e.toString());
         }
