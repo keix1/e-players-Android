@@ -44,7 +44,7 @@ public class MimamoRareFragment extends Fragment implements OnMapReadyCallback {
 
     private String APP_TOKEN = "APP_TOKEN";
     private PointManager pointManager = new PointManager();
-    private String MY_USERNAME = "me";
+    private String MY_USERNAME = "grandpa";
 
     private View rootView;
     private GoogleMap mMap;
@@ -54,7 +54,6 @@ public class MimamoRareFragment extends Fragment implements OnMapReadyCallback {
         // Required empty public constructor
 
     }
-
 
     @Override
     public void onStart(){
