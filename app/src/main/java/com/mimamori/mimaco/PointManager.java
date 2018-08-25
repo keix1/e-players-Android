@@ -7,7 +7,7 @@ import org.json.JSONObject;
 
 public class PointManager {
     String TAG = PointManager.class.getName();
-    String baseUrl = "http://mimaco.herokuapp.com";
+    String baseUrl = "https://e-players.herokuapp.com/";
     String sl = "/";
 
     PointManager() {

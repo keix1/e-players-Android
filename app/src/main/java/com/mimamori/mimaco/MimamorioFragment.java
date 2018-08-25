@@ -574,8 +574,8 @@ private void heatMapStub() {
         heatMapButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                heatMap();
-                heatMapStub();
+                heatMap();
+//                heatMapStub();
             }
         });
 
