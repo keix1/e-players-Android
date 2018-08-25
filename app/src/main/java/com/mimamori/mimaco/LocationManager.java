@@ -23,8 +23,8 @@ public class LocationManager {
         int minus = -1;
         for(int i=0; i<num; i++) {
             List<Double> list = new ArrayList<>();
-            list.add((latitudeSeed + Math.random()/500) * minus);
-            list.add((longitudeSeed + Math.random()/500) * minus);
+            list.add((latitudeSeed + Math.random()/200 * minus));
+            list.add((longitudeSeed + Math.random()/200* minus));
             resultList.add(list);
             minus *= -1;
         }
@@ -48,10 +48,13 @@ public class LocationManager {
 
                 double resultLatitude = Double.parseDouble((String)resultJSONObject.get("latitude"));
                 double resultLongitude = Double.parseDouble((String)resultJSONObject.get("longitude"));
+                double resultPointrate = Double.parseDouble((String)resultJSONObject.get("pointrate"));
+
                 Log.d("getHeatMap", resultLatitude + ", " + resultLongitude);
                 List<Double> list = new ArrayList<>();
                 list.add(resultLatitude);
                 list.add(resultLongitude);
+                list.add(resultPointrate);
                 resultList.add(list);
             }
         } catch (Exception e) {
@@ -59,4 +62,6 @@ public class LocationManager {
         }
         return resultList;
     }
+
+
 }

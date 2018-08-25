@@ -129,6 +129,8 @@ public class MimamorioFragment extends Fragment implements OnMapReadyCallback {
         mMarkerList = new ArrayList<>();
 
 
+
+
         // ACCESS_FINE_LOCATIONの許可(Android 6.0以上向け）
         if (getActivity().checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 0);
@@ -146,6 +148,35 @@ public class MimamorioFragment extends Fragment implements OnMapReadyCallback {
 
         startLocationUpdates();
 //        setInitialLocation();
+
+//        int point = pointManager.getPoint(MY_USERNAME);
+//        pointText.setText("ポイントは " + point);
+
+
+//         一定ごとにUI更新（ポイント）
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while(true) {
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            int point = pointManager.getPoint(MY_USERNAME);
+                            pointText.setText("ポイント：" + point);
+                            Log.d("now_point", "ポイント：" + point);
+                        }
+                    });
+
+                    try {
+                        Thread.sleep(5000);
+                    } catch (Exception e) {
+                        Log.e(TAG, e.getMessage());
+                    }
+                }
+            }
+        }).start();
+
+
     }
 
     /**
@@ -175,65 +206,42 @@ public class MimamorioFragment extends Fragment implements OnMapReadyCallback {
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
 
-        // 一定ごとにUI更新（ポイント）
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while(true) {
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            int point = pointManager.getPoint(MY_USERNAME);
-                            pointText.setText("ポイントは " + point);
 
-                        }
-                    });
-
-                    try {
-                        Thread.sleep(5000);
-                    } catch (Exception e) {
-                        Log.e(TAG, e.getMessage());
-                    }
-                }
-            }
-        }).start();
-
-
-        // 一定ごとにUI更新（ポイント）
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-
-                int count = 0;
-                while(true) {
-                    if(count < 5) {
-                        getActivity().runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                double latitudeSeed = 0.0f;
-                                double longitudeSeed = 0.0f;
-
-                                if (location != null && mMap != null) {
-                                    latitudeSeed = location.getLatitude();
-                                    longitudeSeed = location.getLongitude();
-
-                                    LatLng focus = new LatLng(latitudeSeed, longitudeSeed);
-                                    mMap.addMarker(new MarkerOptions().position(focus).title("現在位置").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
-                                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(focus, 16));
-                                }
-                            }
-                        });
-
-                        try {
-                            Thread.sleep(3000);
-                        } catch (Exception e) {
-                            Log.e(TAG, e.getMessage());
-                        }
-                        count += 1;
-                    }
-                }
-            }
-        }).start();
+        //起動時に位置を現在地へ
+//        new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+//
+//                int count = 0;
+//                while(true) {
+//                    if(count < 5) {
+//                        getActivity().runOnUiThread(new Runnable() {
+//                            @Override
+//                            public void run() {
+//                                double latitudeSeed = 0.0f;
+//                                double longitudeSeed = 0.0f;
+//
+//                                if (location != null && mMap != null) {
+//                                    latitudeSeed = location.getLatitude();
+//                                    longitudeSeed = location.getLongitude();
+//
+//                                    LatLng focus = new LatLng(latitudeSeed, longitudeSeed);
+//                                    mMap.addMarker(new MarkerOptions().position(focus).title("現在位置").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+//                                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(focus, 16));
+//                                }
+//                            }
+//                        });
+//
+//                        try {
+//                            Thread.sleep(3000);
+//                        } catch (Exception e) {
+//                            Log.e(TAG, e.getMessage());
+//                        }
+//                        count += 1;
+//                    }
+//                }
+//            }
+//        }).start();
 
 
         fusedLocationClient =
@@ -284,19 +292,23 @@ public class MimamorioFragment extends Fragment implements OnMapReadyCallback {
 
     }
 
-
-
-    private void heatMapStub() {
+private void heatMapStub() {
         if(location != null) {
             if(mMarkerList != null) {
                 for(Marker marker : mMarkerList) {
                     marker.remove();
                 }
             }
-            double latitudeSeed = 35.535347;
-            double longitudeSeed = 139.700937;
+            //会場
+//            double latitudeSeed = 35.535347;
+//            double longitudeSeed = 139.700937;
+
+            //和菓子　岩
+            double latitudeSeed = 35.53575;
+            double longitudeSeed = 139.690338;
+
             LatLng focus = new LatLng(latitudeSeed, longitudeSeed);
-            mMap.addMarker(new MarkerOptions().position(focus).title("現在位置").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+            mMarkerList.add(mMap.addMarker(new MarkerOptions().position(focus).title("現在位置").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))));
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(focus, 16));
 
             List<List<Double>> result = locationManager.getHeatMapTest(latitudeSeed, longitudeSeed);
@@ -306,6 +318,57 @@ public class MimamorioFragment extends Fragment implements OnMapReadyCallback {
                 options.position(new LatLng(point.get(0), point.get(1)));
                 options.title("子供いる");
                 options.snippet("ポイント率高");
+                Marker marker = mMap.addMarker(options);
+                marker.showInfoWindow();
+                mMarkerList.add(marker);
+            }
+        }
+    }
+
+    private void heatMapStubaaa() {
+        if(location != null) {
+            if(mMarkerList != null) {
+                for(Marker marker : mMarkerList) {
+                    marker.remove();
+                }
+            }
+            //会場
+//            double latitudeSeed = 35.535347;
+//            double longitudeSeed = 139.700937;
+
+            //和菓子　岩
+            double latitudeSeed = 35.53575;
+            double longitudeSeed = 139.690338;
+
+            LatLng focus = new LatLng(latitudeSeed, longitudeSeed);
+            mMarkerList.add(mMap.addMarker(new MarkerOptions().position(focus).title("現在位置").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))));
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(focus, 16));
+
+            List<List<Double>> result = locationManager.getHeatMapTest(latitudeSeed, longitudeSeed);
+            for(List<Double> point : result) {
+                Log.d("ChildrenPoint", point.get(0) + ", " + point.get(1));
+                MarkerOptions options = new MarkerOptions();
+                options.position(new LatLng(point.get(0), point.get(1)));
+                options.title("子供いる");
+                if(point.get(2).equals("1")) {
+                    Log.d("locloc", "111111");
+                    options.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
+                    options.snippet("ポイント率：低");
+                }
+                else if(point.get(2).equals("2")) {
+                    Log.d("locloc", "222");
+                    options.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW));
+                    options.snippet("ポイント率：中");
+                }
+                else if(point.get(2).equals("3")) {
+                    Log.d("locloc", "33333");
+                    options.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
+                    options.snippet("ポイント率：高");
+                } else {
+                    Log.d("locloc", "44444");
+                    options.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN));
+                    options.snippet("ポイント率：高");
+                }
                 Marker marker = mMap.addMarker(options);
                 marker.showInfoWindow();
                 mMarkerList.add(marker);
@@ -326,15 +389,34 @@ public class MimamorioFragment extends Fragment implements OnMapReadyCallback {
             double longitudeSeed = location.getLongitude();
 
             LatLng focus = new LatLng(latitudeSeed, longitudeSeed);
-            mMap.addMarker(new MarkerOptions().position(focus).title("現在位置").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(focus, 16));
+            mMarkerList.add(mMap.addMarker(new MarkerOptions().position(focus).title("現在位置").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))));
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(focus, 15));
 
             List<List<Double>> result = locationManager.getHeatMap(MY_USERNAME, latitudeSeed, longitudeSeed);
             for(List<Double> point : result) {
                 MarkerOptions options = new MarkerOptions();
                 options.position(new LatLng(point.get(0), point.get(1)));
                 options.title("子供いる");
-                options.snippet("ポイント率高");
+
+                if(point.get(2).equals("1")) {
+                    Log.d("locloc", "111111");
+                    options.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
+                    options.snippet("ポイント率：低");
+                }
+                else if(point.get(2).equals("2")) {
+                    Log.d("locloc", "222");
+                    options.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW));
+                    options.snippet("ポイント率：中");
+                }
+                else if(point.get(2).equals("3")) {
+                    Log.d("locloc", "33333");
+                    options.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
+                    options.snippet("ポイント率：高");
+                } else {
+                    Log.d("locloc", "44444");
+                    options.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN));
+                    options.snippet("ポイント率：高");
+                }
                 Marker marker = mMap.addMarker(options);
                 marker.showInfoWindow();
                 mMarkerList.add(marker);
@@ -404,6 +486,7 @@ public class MimamorioFragment extends Fragment implements OnMapReadyCallback {
                                 if(location!=null) {
                                     double latitude = location.getLatitude();
                                     double longitude = location.getLongitude();
+                                    Log.d("mamorio_major_minor", "major" + major + "," + "minor" + minor);
                                     pointManager.findWatchedUser(MY_USERNAME, major, minor, latitude, longitude);
 //                                    Toast.makeText(getActivity(), "ポイントUP", Toast.LENGTH_LONG).show();
 //                                    // Vibratorクラスのインスタンス取得
@@ -463,29 +546,35 @@ public class MimamorioFragment extends Fragment implements OnMapReadyCallback {
         // Inflate the layout for this fragment
         rootView = inflater.inflate(R.layout.fragment_mimamorio, container, false);
         pointText = rootView.findViewById(R.id.pointText);
-        gpsButton = rootView.findViewById(R.id.gpsButton);
-        gpsButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // Add a marker in Sydney and move the camera
-                if(location != null) {
-                    LatLng focus = new LatLng(-34, 151);
-                    focus = new LatLng(location.getLatitude(), location.getLongitude());
-                    mMap.addMarker(new MarkerOptions().position(focus).title("現在位置"));
-//                    mMap.moveCamera(CameraUpdateFactory.newLatLng(focus));
-                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(focus, 16));
-
-//                    statusBarNitify();
-
-                }
-
-            }
-        });
+//        gpsButton = rootView.findViewById(R.id.gpsButton);
+//        gpsButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                // Add a marker in Sydney and move the camera
+//
+//                if(mMarkerList != null) {
+//                    for(Marker marker : mMarkerList) {
+//                        marker.remove();
+//                    }
+//                }
+//
+//                if(location != null) {
+//                    //以下現在位置
+//                    LatLng focus = new LatLng(-34, 151);
+//                    focus = new LatLng(location.getLatitude(), location.getLongitude());
+//                    Marker marker = mMap.addMarker(new MarkerOptions().position(focus).title("現在位置"));
+//                    mMarkerList.add(marker);
+//                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(focus, 16));
+////                    statusBarNitify();
+//                }
+//            }
+//        });
 
         heatMapButton = rootView.findViewById(R.id.heatMapButton);
         heatMapButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+//                heatMap();
                 heatMapStub();
             }
         });
@@ -737,13 +826,13 @@ public class MimamorioFragment extends Fragment implements OnMapReadyCallback {
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-        LatLng focus = new LatLng(35, 139);
+//        LatLng focus = new LatLng(35, 139);
         // Add a marker in Sydney and move the camera
-        if(location != null) {
-            focus = new LatLng(location.getLatitude(), location.getLongitude());
-        }
+//        if(location != null) {
+//            focus = new LatLng(location.getLatitude(), location.getLongitude());
+//        }
 //        mMap.addMarker(new MarkerOptions().position(focus).title("Marker in Sydney"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(focus));
+//        mMap.moveCamera(CameraUpdateFactory.newLatLng(focus));
 
 //        MarkerOptions options = new MarkerOptions();
 //        options.position(new LatLng(35, 151));
@@ -751,6 +840,17 @@ public class MimamorioFragment extends Fragment implements OnMapReadyCallback {
 //        options.snippet("補足情報を記載");
 //        Marker marker = mMap.addMarker(options);
 //        marker.showInfoWindow();
+
+
+        //和菓子　岩
+            double latitudeSeed = 35.53575;
+            double longitudeSeed = 139.690338;
+
+            LatLng focus = new LatLng(latitudeSeed, longitudeSeed);
+//            mMarkerList.add(mMap.addMarker(new MarkerOptions().position(focus).title("現在位置").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))));
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(focus, 14));
+
+
     }
 
 

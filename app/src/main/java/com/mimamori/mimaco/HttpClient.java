@@ -126,7 +126,7 @@ public class HttpClient extends AsyncTask<String, Void, String> {
                 .build();
         Response response = client.newCall(request).execute();
         String result = response.body().string();
-        Log.d("jsoncheck", result);
+        Log.d("jsoncheck_result", result);
         return result;
     }
 

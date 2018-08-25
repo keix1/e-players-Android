@@ -1,24 +1,9 @@
 package com.mimamori.mimaco;
 
-import android.content.Context;
-import android.graphics.Point;
-import android.os.AsyncTask;
 import android.util.Log;
-
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.util.HashMap;
-
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
 
 public class PointManager {
     String TAG = PointManager.class.getName();
@@ -89,22 +74,29 @@ public class PointManager {
         return resultJSONObject;
     }
 
-    public JSONObject findWatchedUser(String username, int major, int minor, double latitude, double longitude) {
-        String appendUrl = "user";
-        String queryUrl = baseUrl + sl + appendUrl + sl + username;
-        String result = "";
-        JSONObject resultJSONObject = new JSONObject();
-        HttpClient httpClient = new HttpClient();
+    public JSONObject findWatchedUser(final String username, final int major, final int minor, final double latitude, final double longitude) {
+        Log.d(TAG, "findWatchedUser");
 
-        try {
-            result = httpClient.execute(Util.getMethodName(), queryUrl, username, String.valueOf(major), String.valueOf(minor), String.valueOf(latitude), String.valueOf(longitude)).get();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    String appendUrl = "user";
+                    String queryUrl = baseUrl + sl + appendUrl + sl + username;
+                    JSONObject resultJSONObject = new JSONObject();
+
+                    HttpClient httpClient = new HttpClient();
+                    String result = "";
+                    result = httpClient.execute("findWatchedUser", queryUrl, username, String.valueOf(major), String.valueOf(minor), String.valueOf(latitude), String.valueOf(longitude)).get();
 //            resultJSONObject = new JSONObject(result);
-            Log.d(TAG, result);
-        } catch (Exception e) {
-            Log.e(TAG, e.toString());
-        }
+                    Log.d(TAG, result);
+                } catch (Exception e) {
+                    Log.e(TAG, e.toString());
+                }
+            }
+        }).start();
 
-        return resultJSONObject;
+        return new JSONObject();
     }
 }
 
