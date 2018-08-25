@@ -28,7 +28,8 @@ dependencies {
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
     implementation 'jp.mamorio:mamorioSDK:8.05'
     implementation 'com.squareup.okhttp3:okhttp:3.10.0'
-    implementation 'com.google.android.gms:play-services-location:11.6.2'
-    implementation 'com.google.android.gms:play-services-maps:11.6.2'
+    implementation 'com.google.android.gms:play-services-location:15.0.1'
+    implementation 'com.google.android.gms:play-services-maps:15.0.1'
+
     implementation 'com.beardedhen:androidbootstrap:2.3.2'
 }

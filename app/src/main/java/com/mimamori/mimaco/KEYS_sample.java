@@ -11,4 +11,5 @@ class KEYS_sample {
     public static String getUser() {
         return user;
     }
+
 }
